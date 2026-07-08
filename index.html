@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ultraplatform · Documentation</title>
+<meta name="description" content="Documentation for Ultraplatform — a generic, file-or-GitLab-backed platform map engine: quickstart, configuration, sources, API." />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<style>
+  :root{--bg:#060910;--panel:#0e1526;--line:rgba(130,160,230,.16);--fg:#e8eefc;--muted:#8b97b8;--dim:#5c6688;
+    --cyan:#7fd4ff;--violet:#b69bff;--orange:#ffb36b;--green:#34d399}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--fg);font:15.5px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:var(--cyan);text-decoration:none} a:hover{text-decoration:underline}
+  header{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:14px;padding:13px 22px;
+    background:rgba(6,9,16,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  header .b{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font:700 12px/1 ui-monospace,monospace;color:#06121f;
+    background:linear-gradient(135deg,var(--cyan),var(--violet) 60%,var(--orange))}
+  header h1{font-size:15.5px;font-weight:700}
+  header h1 span{color:var(--dim);font-weight:500}
+  header .right{margin-left:auto;display:flex;gap:16px;font-size:13.5px}
+  header .right a{color:var(--muted)} header .right a:hover{color:var(--fg);text-decoration:none}
+  .shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;max-width:1080px;margin:0 auto;padding:86px 24px 70px}
+  nav.side{position:sticky;top:86px;align-self:start;display:flex;flex-direction:column;gap:2px}
+  nav.side .lbl{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin:0 0 10px 12px}
+  nav.side a{color:var(--muted);padding:8px 12px;border-radius:9px;font-size:14px;border:1px solid transparent}
+  nav.side a:hover{color:var(--fg);background:rgba(127,212,255,.05);text-decoration:none}
+  nav.side a.on{color:var(--fg);background:rgba(127,212,255,.09);border-color:rgba(127,212,255,.35)}
+  main{min-width:0}
+  main h1{font-size:30px;letter-spacing:-.02em;margin:6px 0 16px}
+  main h2{font-size:20px;margin:30px 0 10px;color:#dfe7fb}
+  main h3{font-size:16px;margin:22px 0 8px;color:#bcd0ff}
+  main p{color:#c4cee6;margin:0 0 14px}
+  main ul,main ol{margin:0 0 14px 22px;color:#c4cee6} main li{margin-bottom:6px}
+  main code{background:rgba(120,150,255,.13);padding:1px 6px;border-radius:5px;font:12.8px ui-monospace,Menlo,monospace;color:#cfe0ff}
+  main pre{background:rgba(6,10,22,.85);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;margin:0 0 16px}
+  main pre code{background:none;padding:0}
+  main .tblwrap{overflow-x:auto;margin:0 0 16px}
+  main table{border-collapse:collapse;font-size:13.5px;min-width:480px}
+  main th,main td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+  main th{color:#bcd0ff;background:rgba(127,212,255,.06)}
+  main blockquote{border-left:3px solid var(--cyan);padding:8px 14px;margin:0 0 14px;background:rgba(127,212,255,.05);border-radius:0 10px 10px 0}
+  footer{border-top:1px solid var(--line);text-align:center;color:var(--dim);font-size:13px;padding:26px}
+  @media(max-width:760px){.shell{grid-template-columns:1fr;gap:18px}nav.side{position:static;flex-direction:row;flex-wrap:wrap}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <span class="b">UP</span>
+  <h1>Ultraplatform <span>· documentation</span></h1>
+  <div class="right">
+    <a href="https://franroa.github.io/platform-engineer/ultraplatform.html">Live showcase ↗</a>
+    <a href="https://franroa.github.io/platform-engineer/">Portfolio ↗</a>
+  </div>
+</header>
+<div class="shell">
+  <nav class="side" id="side">
+    <div class="lbl">Docs</div>
+    <a data-p="overview" href="#p=overview">Overview</a>
+    <a data-p="quickstart" href="#p=quickstart">Quickstart</a>
+    <a data-p="configuration" href="#p=configuration">Configuration</a>
+    <a data-p="sources" href="#p=sources">Sources: gitlab | files</a>
+    <a data-p="api" href="#p=api">HTTP API</a>
+    <a data-p="showcase" href="#p=showcase">Showcase & publishing</a>
+  </nav>
+  <main id="main">Loading…</main>
+</div>
+<footer>Ultraplatform documentation — generated artifact; the source of truth is the private engine repository.</footer>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script>
+  const PAGES=['overview','quickstart','configuration','sources','api','showcase'];
+  const main=document.getElementById('main');
+  async function show(p){
+    if(!PAGES.includes(p))p='overview';
+    document.querySelectorAll('nav.side a').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
+    try{
+      const md=await (await fetch('pages/'+p+'.md',{cache:'no-store'})).text();
+      main.innerHTML=marked.parse(md);
+      main.querySelectorAll('table').forEach(t=>{const w=document.createElement('div');w.className='tblwrap';t.replaceWith(w);w.appendChild(t);});
+      scrollTo(0,0);
+    }catch(e){main.textContent='failed to load: '+e.message;}
+  }
+  const fromHash=()=>show((location.hash.match(/p=([a-z-]+)/)||[])[1]||'overview');
+  addEventListener('hashchange',fromHash); fromHash();
+  /* wheel→horizontal shim for wide tables/code */
+  addEventListener('wheel',function(e){
+    if(e.ctrlKey||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
+    let el=e.target;
+    for(;el&&el!==document.body;el=el.parentElement){
+      const s=getComputedStyle(el);
+      if((s.overflowX==='auto'||s.overflowX==='scroll')&&el.scrollWidth>el.clientWidth+1){
+        const before=el.scrollLeft;el.scrollLeft+=e.deltaY;
+        if(el.scrollLeft!==before)e.preventDefault();return;}
+    }
+  },{passive:false});
+</script>
+</body>
+</html>
