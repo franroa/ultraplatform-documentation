@@ -3,19 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<!-- no-flash theme applier. Two callers: (1) visited standalone — reads localStorage/OS pref,
-     same `up-theme` convention the portfolio uses (this site has its OWN localStorage, a
-     different origin, so it can't read the portfolio's value directly — hence (2)). (2) embedded
-     via iframe in the portfolio's docs.html — the parent can't read across origins either, so it
-     bakes the CURRENT theme into ?theme= on the iframe src instead; embed mode also marks
-     <html data-embed> so CSS hides this page's own header (the parent already has one), and the
-     runtime listens for `up-theme:<t>` postMessage so later toggles in the parent stay in sync. -->
+<!-- no-flash theme applier — same `up-theme` localStorage convention as the portfolio (this
+     site is its own origin with its own storage; the shared key just keeps the mental model
+     identical: explicit choice → OS preference). -->
 <script>(function(){try{
-  var p=new URLSearchParams(location.search);
-  var embed=/^(1|true)$/.test(p.get('embed')||'');
-  if(embed)document.documentElement.dataset.embed='1';
-  var t=(embed&&p.get('theme'))?p.get('theme'):null;
-  if(!t){try{t=localStorage.getItem('up-theme');}catch(e){}}
+  var t=localStorage.getItem('up-theme');
   if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme:light)').matches)?'light':'dark';
   document.documentElement.dataset.theme=t;
 }catch(e){}})();</script>
@@ -41,10 +33,6 @@
   :root[data-theme="light"] main th{color:#1c3a63}
   :root[data-theme="light"] main pre{background:#0c1326}   /* code stays a dark terminal block, like the portfolio */
   :root[data-theme="light"] main pre code{color:#c7d6f5}
-  /* embed mode (the portfolio's docs.html iframe): this page's own header is redundant chrome —
-     the parent page already has a nav bar — so it's hidden and the layout reclaims its offset */
-  :root[data-embed] header{display:none}
-  :root[data-embed] .shell{padding-top:24px}
   *{margin:0;padding:0;box-sizing:border-box}
   body{background:var(--bg);color:var(--fg);font:15.5px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
   a{color:var(--cyan);text-decoration:none} a:hover{text-decoration:underline}
@@ -52,6 +40,10 @@
      hamburger + dropdown below 1150px, rather than a sidebar that merely wraps on mobile */
   header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:14px;padding:13px 22px;
     background:rgba(6,9,16,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  /* the bar's glass background is a LITERAL (translucent dark), not a var — it needs its own
+     light override or the menu stays dark while the page goes light (the exact gotcha the
+     portfolio's nav.js light block handles) */
+  :root[data-theme="light"] header{background:rgba(246,248,252,.85)}
   header .logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px;color:var(--fg);font-size:16px;text-decoration:none}
   header .b{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font:700 12px/1 ui-monospace,monospace;color:#06121f;
     background:linear-gradient(135deg,var(--cyan),var(--violet) 60%,var(--orange));flex:0 0 auto}
@@ -144,11 +136,9 @@
     links.addEventListener('click',e=>{ if(e.target.closest('a')) setOpen(false); });
   })();
 
-  /* theme: standalone gets a working toggle; embedded (in the portfolio's docs.html iframe)
-     just follows the parent's `up-theme:<t>` postMessage — see the inline applier in <head> */
+  /* light/dark toggle — same preference order as the portfolio: explicit choice → OS pref */
   (function(){
     const KEY='up-theme', root=document.documentElement, btn=document.getElementById('dtheme-toggle');
-    const embed=!!root.dataset.embed;
     const current=()=>root.dataset.theme==='light'?'light':'dark';
     function syncMeta(){ const m=document.querySelector('meta[name="theme-color"]'); if(!m)return;
       m.setAttribute('content',current()==='light'?'#eef2fb':(m.dataset.dark||'#060910')); }
@@ -157,20 +147,13 @@
       btn.innerHTML=toLight
         ?'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2 12h2.4M19.6 12H22M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg>'
         :'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>'; }
-    if(embed){ btn.remove(); }   // embedded: theme is parent-driven, no independent control here
-    else{
-      paint(); syncMeta();
-      btn.addEventListener('click',()=>{ const t=current()==='dark'?'light':'dark';
-        root.dataset.theme=t; try{localStorage.setItem(KEY,t);}catch(e){} paint(); syncMeta(); });
-      try{ const mq=matchMedia('(prefers-color-scheme:light)');
-        mq.addEventListener&&mq.addEventListener('change',e=>{ let stored; try{stored=localStorage.getItem(KEY);}catch(x){}
-          if(!stored){ root.dataset.theme=e.matches?'light':'dark'; paint(); syncMeta(); } });
-      }catch(e){}
-    }
-    // embed only: the parent broadcasts on every toggle (theme.js's broadcast() messages every
-    // iframe on the page) — apply it live, no reload needed
-    addEventListener('message',e=>{ if(typeof e.data==='string'&&e.data.indexOf('up-theme:')===0){
-      root.dataset.theme=e.data.slice(9); syncMeta(); } });
+    paint(); syncMeta();
+    btn.addEventListener('click',()=>{ const t=current()==='dark'?'light':'dark';
+      root.dataset.theme=t; try{localStorage.setItem(KEY,t);}catch(e){} paint(); syncMeta(); });
+    try{ const mq=matchMedia('(prefers-color-scheme:light)');
+      mq.addEventListener&&mq.addEventListener('change',e=>{ let stored; try{stored=localStorage.getItem(KEY);}catch(x){}
+        if(!stored){ root.dataset.theme=e.matches?'light':'dark'; paint(); syncMeta(); } });
+    }catch(e){}
   })();
 
   /* wheel→horizontal shim for wide tables/code */
