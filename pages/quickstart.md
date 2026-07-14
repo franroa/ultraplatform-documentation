@@ -28,7 +28,8 @@ first: unmapped repos are the engine telling you which views to define. See
 
 No GitLab? Export your inventory as a directory (one folder per repo + a small
 `.repo.json` for metadata) and set `platformDir` in the config — the same pipeline runs.
-Format in [Sources](#p=sources).
+Format in [Sources](#p=sources); a complete worked example (with the real outputs) in
+[Onboarding a new platform](#p=new-platform).
 
 ## 4 · Ground the chat (optional)
 

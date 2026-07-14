@@ -10,7 +10,7 @@ One JSON file per deployment (default `server/config/platform.config.json`, over
 | `platformDir` | **files source**: directory describing the platform — its presence selects the source; omit it for the gitlab source |
 | `sectors` | sector names for environment parsing (`<sector>-<stage>-<region>`) |
 | `sectorAliases` | `{ "short": "canonical" }` env-name aliases |
-| `viewMap` | the map's views → repos: `[{view, repos:[…]}]` or `{view, prefix:"path/"}` |
+| `viewMap` | the map's views → repos: `[{view, repos:[…]}]` or `{view, prefix:"path/"}` — repos by **group-relative path** (`team/repo`; bare slug accepted for top-level repos) |
 | `appSources` | where applications live: `"tenantsRepo:dir,namespacesRepo:dir"` |
 | `networkRepo` | the repo whose `**/subnet.<name>.tf` files feed the subnet inventory |
 | `tenantPermissions` | `{default, extended}` repos — powers the tenant-permissions chat answer |

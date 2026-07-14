@@ -3,29 +3,78 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- no-flash theme applier. Two callers: (1) visited standalone — reads localStorage/OS pref,
+     same `up-theme` convention the portfolio uses (this site has its OWN localStorage, a
+     different origin, so it can't read the portfolio's value directly — hence (2)). (2) embedded
+     via iframe in the portfolio's docs.html — the parent can't read across origins either, so it
+     bakes the CURRENT theme into ?theme= on the iframe src instead; embed mode also marks
+     <html data-embed> so CSS hides this page's own header (the parent already has one), and the
+     runtime listens for `up-theme:<t>` postMessage so later toggles in the parent stay in sync. -->
+<script>(function(){try{
+  var p=new URLSearchParams(location.search);
+  var embed=/^(1|true)$/.test(p.get('embed')||'');
+  if(embed)document.documentElement.dataset.embed='1';
+  var t=(embed&&p.get('theme'))?p.get('theme'):null;
+  if(!t){try{t=localStorage.getItem('up-theme');}catch(e){}}
+  if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme:light)').matches)?'light':'dark';
+  document.documentElement.dataset.theme=t;
+}catch(e){}})();</script>
+<meta name="theme-color" content="#060910" data-dark="#060910" />
 <title>Ultraplatform · Documentation</title>
 <meta name="description" content="Documentation for Ultraplatform — a generic, file-or-GitLab-backed platform map engine: quickstart, configuration, sources, API." />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="canonical" href="https://franroa.github.io/ultraplatform-documentation/" />
 <style>
   :root{--bg:#060910;--panel:#0e1526;--line:rgba(130,160,230,.16);--fg:#e8eefc;--muted:#8b97b8;--dim:#5c6688;
     --cyan:#7fd4ff;--violet:#b69bff;--orange:#ffb36b;--green:#34d399}
+  /* light theme — every reading surface (see the portfolio's light-mode gotcha note in
+     skills/improve-platform-map: literals need their own override, only vars switch for free) */
+  :root[data-theme="light"]{
+    --bg:#f6f8fc;--panel:#ffffff;--line:rgba(30,52,96,.16);--fg:#0f1a33;--muted:#54617e;--dim:#7c88a8;
+    --cyan:#0e79b0;--violet:#6d4fd0;--orange:#b45f17;--green:#0e9e6a;
+    color-scheme:light;
+  }
+  :root[data-theme="light"] main h2{color:#1c3a63}
+  :root[data-theme="light"] main h3{color:#2a4a7a}
+  :root[data-theme="light"] main p,:root[data-theme="light"] main ul,:root[data-theme="light"] main ol{color:#33405f}
+  :root[data-theme="light"] main code{color:#1c3a63}
+  :root[data-theme="light"] main th{color:#1c3a63}
+  :root[data-theme="light"] main pre{background:#0c1326}   /* code stays a dark terminal block, like the portfolio */
+  :root[data-theme="light"] main pre code{color:#c7d6f5}
+  /* embed mode (the portfolio's docs.html iframe): this page's own header is redundant chrome —
+     the parent page already has a nav bar — so it's hidden and the layout reclaims its offset */
+  :root[data-embed] header{display:none}
+  :root[data-embed] .shell{padding-top:24px}
   *{margin:0;padding:0;box-sizing:border-box}
   body{background:var(--bg);color:var(--fg);font:15.5px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
   a{color:var(--cyan);text-decoration:none} a:hover{text-decoration:underline}
-  header{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:14px;padding:13px 22px;
+  /* top navbar — same logic as the portfolio's nav.js: a horizontal bar that collapses into a
+     hamburger + dropdown below 1150px, rather than a sidebar that merely wraps on mobile */
+  header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:14px;padding:13px 22px;
     background:rgba(6,9,16,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  header .logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px;color:var(--fg);font-size:16px;text-decoration:none}
   header .b{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font:700 12px/1 ui-monospace,monospace;color:#06121f;
-    background:linear-gradient(135deg,var(--cyan),var(--violet) 60%,var(--orange))}
-  header h1{font-size:15.5px;font-weight:700}
-  header h1 span{color:var(--dim);font-weight:500}
-  header .right{margin-left:auto;display:flex;gap:16px;font-size:13.5px}
-  header .right a{color:var(--muted)} header .right a:hover{color:var(--fg);text-decoration:none}
-  .shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;max-width:1080px;margin:0 auto;padding:86px 24px 70px}
-  nav.side{position:sticky;top:86px;align-self:start;display:flex;flex-direction:column;gap:2px}
-  nav.side .lbl{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin:0 0 10px 12px}
-  nav.side a{color:var(--muted);padding:8px 12px;border-radius:9px;font-size:14px;border:1px solid transparent}
-  nav.side a:hover{color:var(--fg);background:rgba(127,212,255,.05);text-decoration:none}
-  nav.side a.on{color:var(--fg);background:rgba(127,212,255,.09);border-color:rgba(127,212,255,.35)}
+    background:linear-gradient(135deg,var(--cyan),var(--violet) 60%,var(--orange));flex:0 0 auto}
+  header .links{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  header .links a{font-size:13.5px;color:var(--muted);text-decoration:none;transition:color .18s;white-space:nowrap}
+  header .links a:hover,header .links a.on{color:var(--fg);text-decoration:none}
+  header .navburger{display:none;margin-left:auto;background:none;border:1px solid var(--line);border-radius:9px;color:var(--fg);
+    font-size:17px;padding:4px 10px;cursor:pointer;font-family:inherit}
+  #dtheme-toggle{margin-left:auto;width:30px;height:30px;border-radius:9px;display:inline-flex;flex:0 0 auto;
+    align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--line);
+    background:transparent;color:var(--muted);transition:border-color .15s,color .15s}
+  #dtheme-toggle:hover{color:var(--fg);border-color:rgba(127,212,255,.5)}
+  @media(max-width:1150px){
+    header .logo span:last-child{display:none}
+    header .navburger{display:block}
+    #dtheme-toggle{margin-left:8px}
+    header .links{display:none}
+    header .links.open{display:flex;position:fixed;top:60px;left:0;right:0;flex-direction:column;
+      align-items:flex-start;gap:2px;background:rgba(6,9,16,.97);border-bottom:1px solid var(--line);padding:10px 22px 16px;max-height:calc(100vh - 60px);overflow-y:auto}
+    header .links.open a{padding:9px 2px;font-size:15px;width:100%}
+  }
+  :root[data-theme="light"] header .links.open{background:rgba(246,248,252,.97)}
+  .shell{max-width:860px;margin:0 auto;padding:86px 24px 70px}
   main{min-width:0}
   main h1{font-size:30px;letter-spacing:-.02em;margin:6px 0 16px}
   main h2{font-size:20px;margin:30px 0 10px;color:#dfe7fb}
@@ -41,39 +90,40 @@
   main th{color:#bcd0ff;background:rgba(127,212,255,.06)}
   main blockquote{border-left:3px solid var(--cyan);padding:8px 14px;margin:0 0 14px;background:rgba(127,212,255,.05);border-radius:0 10px 10px 0}
   footer{border-top:1px solid var(--line);text-align:center;color:var(--dim);font-size:13px;padding:26px}
-  @media(max-width:760px){.shell{grid-template-columns:1fr;gap:18px}nav.side{position:static;flex-direction:row;flex-wrap:wrap}}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<header>
-  <span class="b">UP</span>
-  <h1>Ultraplatform <span>· documentation</span></h1>
-  <div class="right">
-    <a href="https://franroa.github.io/platform-engineer/ultraplatform.html">Live showcase ↗</a>
-    <a href="https://franroa.github.io/platform-engineer/">Portfolio ↗</a>
-  </div>
-</header>
-<div class="shell">
-  <nav class="side" id="side">
-    <div class="lbl">Docs</div>
+<header id="dnav">
+  <a class="logo" href="#p=overview"><span class="b">UP</span><span>Ultraplatform&nbsp;·&nbsp;Docs</span></a>
+  <button class="navburger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="dnav-links">☰</button>
+  <div class="links" id="dnav-links">
     <a data-p="overview" href="#p=overview">Overview</a>
     <a data-p="quickstart" href="#p=quickstart">Quickstart</a>
     <a data-p="configuration" href="#p=configuration">Configuration</a>
-    <a data-p="sources" href="#p=sources">Sources: gitlab | files</a>
-    <a data-p="api" href="#p=api">HTTP API</a>
-    <a data-p="showcase" href="#p=showcase">Showcase & publishing</a>
-  </nav>
+    <a data-p="sources" href="#p=sources">Sources</a>
+    <a data-p="cli" href="#p=cli">CLI</a>
+    <a data-p="new-repo" href="#p=new-repo">New repo</a>
+    <a data-p="new-platform" href="#p=new-platform">New platform</a>
+    <a data-p="api" href="#p=api">API</a>
+    <a data-p="skills" href="#p=skills">Skills</a>
+    <a data-p="showcase" href="#p=showcase">Showcase</a>
+    <a href="https://franroa.github.io/platform-engineer/ultraplatform.html">Live showcase ↗</a>
+    <a href="https://franroa.github.io/platform-engineer/">Portfolio ↗</a>
+  </div>
+  <button id="dtheme-toggle" type="button" aria-label="Switch theme"></button>
+</header>
+<div class="shell">
   <main id="main">Loading…</main>
 </div>
 <footer>Ultraplatform documentation — generated artifact; the source of truth is the private engine repository.</footer>
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <script>
-  const PAGES=['overview','quickstart','configuration','sources','api','showcase'];
+  const PAGES=['overview','quickstart','configuration','sources','cli','new-repo','new-platform','api','skills','showcase'];
   const main=document.getElementById('main');
   async function show(p){
     if(!PAGES.includes(p))p='overview';
-    document.querySelectorAll('nav.side a').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
+    document.querySelectorAll('#dnav-links a[data-p]').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
     try{
       const md=await (await fetch('pages/'+p+'.md',{cache:'no-store'})).text();
       main.innerHTML=marked.parse(md);
@@ -83,6 +133,46 @@
   }
   const fromHash=()=>show((location.hash.match(/p=([a-z-]+)/)||[])[1]||'overview');
   addEventListener('hashchange',fromHash); fromHash();
+
+  /* top navbar burger — same open/close/Escape/click-outside logic as the portfolio's nav.js */
+  (function(){
+    const nav=document.getElementById('dnav'), burger=nav.querySelector('.navburger'), links=nav.querySelector('.links');
+    function setOpen(open){ links.classList.toggle('open',open); burger.setAttribute('aria-expanded',open?'true':'false'); }
+    burger.addEventListener('click',e=>{ e.stopPropagation(); setOpen(!links.classList.contains('open')); });
+    document.addEventListener('click',e=>{ if(!e.target.closest('#dnav')) setOpen(false); });
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&links.classList.contains('open')){ setOpen(false); burger.focus(); } });
+    links.addEventListener('click',e=>{ if(e.target.closest('a')) setOpen(false); });
+  })();
+
+  /* theme: standalone gets a working toggle; embedded (in the portfolio's docs.html iframe)
+     just follows the parent's `up-theme:<t>` postMessage — see the inline applier in <head> */
+  (function(){
+    const KEY='up-theme', root=document.documentElement, btn=document.getElementById('dtheme-toggle');
+    const embed=!!root.dataset.embed;
+    const current=()=>root.dataset.theme==='light'?'light':'dark';
+    function syncMeta(){ const m=document.querySelector('meta[name="theme-color"]'); if(!m)return;
+      m.setAttribute('content',current()==='light'?'#eef2fb':(m.dataset.dark||'#060910')); }
+    function paint(){ const toLight=current()==='dark';
+      btn.setAttribute('aria-label',toLight?'Switch to light theme':'Switch to dark theme'); btn.title=btn.getAttribute('aria-label');
+      btn.innerHTML=toLight
+        ?'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2 12h2.4M19.6 12H22M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg>'
+        :'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>'; }
+    if(embed){ btn.remove(); }   // embedded: theme is parent-driven, no independent control here
+    else{
+      paint(); syncMeta();
+      btn.addEventListener('click',()=>{ const t=current()==='dark'?'light':'dark';
+        root.dataset.theme=t; try{localStorage.setItem(KEY,t);}catch(e){} paint(); syncMeta(); });
+      try{ const mq=matchMedia('(prefers-color-scheme:light)');
+        mq.addEventListener&&mq.addEventListener('change',e=>{ let stored; try{stored=localStorage.getItem(KEY);}catch(x){}
+          if(!stored){ root.dataset.theme=e.matches?'light':'dark'; paint(); syncMeta(); } });
+      }catch(e){}
+    }
+    // embed only: the parent broadcasts on every toggle (theme.js's broadcast() messages every
+    // iframe on the page) — apply it live, no reload needed
+    addEventListener('message',e=>{ if(typeof e.data==='string'&&e.data.indexOf('up-theme:')===0){
+      root.dataset.theme=e.data.slice(9); syncMeta(); } });
+  })();
+
   /* wheel→horizontal shim for wide tables/code */
   addEventListener('wheel',function(e){
     if(e.ctrlKey||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
