@@ -90,6 +90,13 @@
   .toc a{display:block;padding:4px 8px 4px 12px;border-left:2px solid var(--line);color:var(--muted);text-decoration:none}
   .toc a:hover{color:var(--fg);text-decoration:none}
   .toc a.on{color:var(--fg);border-left-color:var(--cyan)}
+  /* narrow viewports: the same list, collapsed inline at the top of the page instead */
+  .toci{display:none;margin:0 0 20px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+  .toci summary{cursor:pointer;padding:9px 14px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .toci a{display:block;padding:6px 14px 6px 26px;font-size:13.5px;color:var(--muted);text-decoration:none}
+  .toci a:hover{color:var(--fg);text-decoration:none}
+  .toci div{padding-bottom:8px}
+  @media(max-width:1359px){.toci.has{display:block}}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -137,8 +144,12 @@
   async function show(p){
     if(!PAGES.includes(p))p='overview';
     document.querySelectorAll('#dnav-links a[data-p]').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
+    // two quick show() calls may resolve out of order — only the latest may render, or an
+    // interleaved pair leaves a stale body / a duplicated inline TOC
+    const req=(show._req=(show._req||0)+1);
     try{
       const md=await loadMd(p);
+      if(req!==show._req)return;
       main.innerHTML=marked.parse(md);
       main.querySelectorAll('table').forEach(t=>{const w=document.createElement('div');w.className='tblwrap';t.replaceWith(w);w.appendChild(t);});
       buildToc();
@@ -150,11 +161,22 @@
   let tocObs=null;
   function buildToc(){
     const toc=document.getElementById('toc'); if(tocObs){tocObs.disconnect();tocObs=null;}
+    main.querySelectorAll('.toci').forEach(e=>e.remove());   // idempotent across rebuilds
     const hs=[...main.querySelectorAll('h2')];
     hs.forEach(h=>{ if(!h.id) h.id='s-'+h.textContent.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); });
     toc.classList.toggle('has',hs.length>=2);
     if(hs.length<2){toc.innerHTML='';return;}
     toc.innerHTML='<p class="toct">On this page</p>'+hs.map(h=>'<a href="#'+h.id+'" data-t="'+h.id+'">'+h.textContent+'</a>').join('');
+    /* narrow viewports get the same list as a collapsed box above the content. The links are
+       intercepted (scrollIntoView, no hash write) — a native #anchor would clobber the #p=
+       route and hashchange would yank the reader back to Overview. */
+    const inline=document.createElement('details'); inline.className='toci has';
+    inline.innerHTML='<summary>On this page</summary><div>'+hs.map(h=>'<a href="#'+h.id+'" data-t="'+h.id+'">'+h.textContent+'</a>').join('')+'</div>';
+    inline.addEventListener('click',e=>{ const a=e.target.closest('a'); if(!a)return; e.preventDefault();
+      inline.open=false; const t=document.getElementById(a.dataset.t);
+      if(t) t.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'}); });
+    const h1=main.querySelector('h1');
+    if(h1) h1.after(inline); else main.prepend(inline);
     const links=[...toc.querySelectorAll('a')];
     toc.onclick=e=>{ const a=e.target.closest('a'); if(!a)return; e.preventDefault();
       const t=document.getElementById(a.dataset.t); if(!t)return;
