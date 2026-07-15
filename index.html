@@ -45,8 +45,7 @@
      portfolio's nav.js light block handles) */
   :root[data-theme="light"] header{background:rgba(246,248,252,.85)}
   header .logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px;color:var(--fg);font-size:16px;text-decoration:none}
-  header .b{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font:700 12px/1 ui-monospace,monospace;color:#06121f;
-    background:linear-gradient(135deg,var(--cyan),var(--violet) 60%,var(--orange));flex:0 0 auto}
+  header .b{width:30px;height:30px;border-radius:8px;flex:0 0 auto;display:block} /* the Ultraplatform mark (favicon.svg) */
   header .links{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
   header .links a{font-size:13.5px;color:var(--muted);text-decoration:none;transition:color .18s;white-space:nowrap}
   header .links a:hover,header .links a.on{color:var(--fg);text-decoration:none}
@@ -102,7 +101,7 @@
 </head>
 <body>
 <header id="dnav">
-  <a class="logo" href="#p=overview"><span class="b">UP</span><span>Ultraplatform&nbsp;·&nbsp;Docs</span></a>
+  <a class="logo" href="#p=overview"><img class="b" src="favicon.svg" alt="" width="30" height="30"><span>Ultraplatform&nbsp;·&nbsp;Docs</span></a>
   <button class="navburger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="dnav-links">☰</button>
   <div class="links" id="dnav-links">
     <a data-p="overview" href="#p=overview">Overview</a>
