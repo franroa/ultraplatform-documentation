@@ -109,15 +109,27 @@
   <main id="main">Loading…</main>
 </div>
 <footer>Ultraplatform documentation — generated artifact; the source of truth is the private engine repository.</footer>
-<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<!-- self-hosted (same v12.0.2 the portfolio vendors) — a CDN copy meant first render waited
+     on a third-party origin before ANY page could parse -->
+<script src="marked.min.js"></script>
 <script>
   const PAGES=['overview','quickstart','configuration','sources','cli','new-repo','new-platform','api','skills','showcase'];
   const main=document.getElementById('main');
+  /* every page is a few KB of markdown — fetch each at most once per visit and keep it in
+     memory, so navbar clicks after the first are instant instead of a CDN round-trip each
+     (the old `cache:'no-store'` forbade the browser from ever reusing a response) */
+  const MD={};
+  function loadMd(p){
+    return MD[p]||(MD[p]=fetch('pages/'+p+'.md').then(r=>{
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.text();
+    }).catch(e=>{delete MD[p];throw e;}));
+  }
   async function show(p){
     if(!PAGES.includes(p))p='overview';
     document.querySelectorAll('#dnav-links a[data-p]').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
     try{
-      const md=await (await fetch('pages/'+p+'.md',{cache:'no-store'})).text();
+      const md=await loadMd(p);
       main.innerHTML=marked.parse(md);
       main.querySelectorAll('table').forEach(t=>{const w=document.createElement('div');w.className='tblwrap';t.replaceWith(w);w.appendChild(t);});
       scrollTo(0,0);
@@ -125,6 +137,11 @@
   }
   const fromHash=()=>show((location.hash.match(/p=([a-z-]+)/)||[])[1]||'overview');
   addEventListener('hashchange',fromHash); fromHash();
+  /* prefetch the remaining pages once the browser is idle — all ten together are ~27 KB,
+     cheaper than one image, and it makes every later menu click render from memory */
+  (window.requestIdleCallback||function(f){setTimeout(f,1200);})(function(){
+    PAGES.forEach(p=>loadMd(p).catch(function(){}));
+  });
 
   /* top navbar burger — same open/close/Escape/click-outside logic as the portfolio's nav.js */
   (function(){
