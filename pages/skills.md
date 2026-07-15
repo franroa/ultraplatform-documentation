@@ -40,6 +40,16 @@ map (with an explicit opt-out set for personal-tooling essays), leak safety for 
 content, and **private posts** — articles that render only on the author's machine and can
 never reach a public artifact by construction.
 
+## sync-landing-sections
+
+The closing-move skill for content sessions. The landing page summarizes the platform in
+three places — the stats band under the globe (baked numbers + runtime refresh from the
+live snapshot), the client-side role-fit matcher (keyword areas, each linking to proof),
+and the for-recruiters card (authored once, cloned over the globe at runtime) — and none of
+them updates itself when the fake platform grows, a post lands, or a map lens ships. This
+skill is the checklist that re-syncs all three plus the documentation pages stating the
+same facts, with the verification steps to prove they agree before publishing.
+
 ## How the CLI hands work to a skill
 
 `node cli.mjs --skill` is the integration point: it fetches `/live`, summarizes the drift,

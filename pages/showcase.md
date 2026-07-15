@@ -5,8 +5,8 @@ demo: **the showcase is a fake platform, not fake code.**
 
 - The engine has no fixture/test path. The showcase deployment sets `platformDir` to a
   directory of fictional-but-real files and runs the same pipeline as production.
-- The fake platform is deep enough to be worth mapping: ~30 repos of Terraform/YAML/markdown,
-  four tenants, a staged drift feed — and a **GitOps layer** (`up-kubernetes/gitops/
+- The fake platform is deep enough to be worth mapping: 30+ repos of Terraform/YAML/markdown,
+  four tenants across four regions, a staged drift feed — and a **GitOps layer** (`up-kubernetes/gitops/
   platform-services/`, sync-waved Argo CD Applications placed by cluster class: `base/`
   everywhere — policy, secrets, autoscaling, scanning, cost allocation — `hub/` once,
   `sandbox/` never in live). The map's AKS view renders exactly that landscape.
