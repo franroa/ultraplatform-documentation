@@ -35,6 +35,10 @@ Top to bottom, all live from `GET /live`:
   mapping the 3D map draws, in text.
 - **Subscriptions** — the sector × stage rollup parsed from environment names
   (`<sector>-<stage>-<region>`), with per-stage region codes.
+- **Helm charts** — every chart (`name@version`) found in the configured chart-library repo
+  (`helmChartsRepo`), re-read on each sync.
+- **Terraform module releases** — the released module versions parsed from the group wiki's
+  release table (`moduleReleasesWiki`), re-read on each sync.
 - **Terraform security inventory** — every `azurerm_*` resource that grants permissions or
   shapes the network (role assignments, custom roles, subnets, firewall rules, NSG rules,
   peerings, private endpoints), each as `{repo, file, names[]}`. Rescanned every

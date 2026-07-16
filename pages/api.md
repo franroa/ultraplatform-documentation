@@ -23,6 +23,9 @@ The whole state, rebuilt every sync:
 | `network.subnets` | one entry per `subnet.<name>.tf` in the network repo |
 | `security.kinds` | terraform security inventory: role assignments/definitions, subnets, firewall rules, NSG rules, peerings, private endpoints — each `{repo, file, names[]}` |
 | `deployVars` | per repo: CI/CD variable NAMES defined + referenced (never values) |
+| `services` | config-declared platform services (incl. gateway flows: `from`/`to`, per-service `geo`) drawn on the map's layers |
+| `helmCharts` | `{repo, charts:[{name,version,description,path}]}` — every Chart.yaml in `helmChartsRepo`, refreshed each sync |
+| `tfModules` | `{source, modules:[{name,version,released}]}` — the group wiki's module release table, refreshed each sync |
 | `signals` | deploy mechanism detection (Argo CD / Flux / pipelines) |
 | `sourceLabel` / `sourceNote` / `drift` | presentation + optional external drift feed |
 

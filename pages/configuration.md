@@ -17,6 +17,10 @@ One JSON file per deployment (default `server/config/platform.config.json`, over
 | `knowledge` | curated facts injected into every chat answer |
 | `sourceLabel` / `sourceNote` | UI header + badge text for this deployment |
 | `drift` | optional externally-computed cloud-vs-code drift feed for the drift panel |
+| `repoInfo` | `{repo: "purpose text"}` — the `!` explanations in each view's repo table (falls back to the repo's GitLab description) |
+| `services` | platform-run services drawn on the map: `[{name, kind, layer, stage, regions, repo, icon, info}]`. A `kind:"gateway"` service may declare a flow — `from`/`fromVia` (external consumer + link label) and `to`/`toVia` (backend service names) — drawn as one continuous line on the globe's AI layer and in the region view. A backend with `geo:{lat,lng,label}` is placed at its real location (cross-region hops stay honest) |
+| `helmChartsRepo` | repo whose `**/Chart.yaml` files feed the live chart list (name·version·description) shown in the Helm Charts view — re-read every sync |
+| `moduleReleasesWiki` | group-wiki page slug holding the module release table (`\| name \| version \| date \|`) — parsed every sync into the Terraform Modules view (files source: `<platformDir>/.wiki/<slug>.md`) |
 
 ## Flags & environment
 
