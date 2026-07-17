@@ -24,7 +24,7 @@ The whole state, rebuilt every sync:
 | `security.kinds` | terraform security inventory: role assignments/definitions, subnets, firewall rules, NSG rules, peerings, private endpoints — each `{repo, file, names[]}` |
 | `deployVars` | per repo: CI/CD variable NAMES defined + referenced (never values) |
 | `services` | config-declared platform services (incl. gateway flows: `from`/`to`, per-service `geo`) drawn on the map's layers |
-| `helmCharts` | `{repo, charts:[{name,version,description,path}]}` — every Chart.yaml in `helmChartsRepo`, refreshed each sync |
+| `helmCharts` | `{repo, registry, charts:[{name,version,published,description,path}]}` — every Chart.yaml in `helmChartsRepo`; `version` comes from the package registry when published (`published` echoes it), else Chart.yaml; refreshed each sync |
 | `tfModules` | `{source, modules:[{name,version,released}]}` — the group wiki's module release table, refreshed each sync |
 | `ciComponents` | `{repo, components:[{name,path,inputs,description}]}` — every `templates/*.yml` CI component in `ciComponentsRepo`, refreshed each sync |
 | `backups` | config-declared backup posture `{repo, stage, regions, vaults, enrolment, geo}` — drawn as the map's backup layer |
