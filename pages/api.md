@@ -27,6 +27,7 @@ The whole state, rebuilt every sync:
 | `helmCharts` | `{repo, charts:[{name,version,description,path}]}` — every Chart.yaml in `helmChartsRepo`, refreshed each sync |
 | `tfModules` | `{source, modules:[{name,version,released}]}` — the group wiki's module release table, refreshed each sync |
 | `ciComponents` | `{repo, components:[{name,path,inputs,description}]}` — every `templates/*.yml` CI component in `ciComponentsRepo`, refreshed each sync |
+| `backups` | config-declared backup posture `{repo, stage, regions, vaults, enrolment, geo}` — drawn as the map's backup layer |
 | `signals` | deploy mechanism detection (Argo CD / Flux / pipelines) |
 | `sourceLabel` / `sourceNote` / `drift` | presentation + optional external drift feed |
 
