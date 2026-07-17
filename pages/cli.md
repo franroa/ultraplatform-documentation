@@ -35,8 +35,10 @@ Top to bottom, all live from `GET /live`:
   mapping the 3D map draws, in text.
 - **Subscriptions** — the sector × stage rollup parsed from environment names
   (`<sector>-<stage>-<region>`), with per-stage region codes.
-- **Helm charts** — every chart (`name@version`) found in the configured chart-library repo
-  (`helmChartsRepo`), re-read on each sync.
+- **Helm charts** — every chart found in the configured chart-library repo
+  (`helmChartsRepo`), with the version taken from the project's **package registry** when
+  published (unpublished charts show their Chart.yaml version, marked `·unpub`); re-read on
+  each sync.
 - **Terraform module releases** — the released module versions parsed from the group wiki's
   release table (`moduleReleasesWiki`), re-read on each sync.
 - **CI components** — every CI/CD component template in the configured components repo
