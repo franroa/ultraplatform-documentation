@@ -22,7 +22,7 @@ One JSON file per deployment (default `server/config/platform.config.json`, over
 | `helmChartsRepo` | repo whose `**/Chart.yaml` files feed the live chart list (name·version·description) shown in the Helm Charts view — re-read every sync |
 | `moduleReleasesWiki` | group-wiki page slug holding the module release table (`\| name \| version \| date \|`) — parsed every sync into the Terraform Modules view (files source: `<platformDir>/.wiki/<slug>.md`) |
 | `ciComponentsRepo` | repo whose `templates/*.yml` files (the GitLab CI/CD component convention, incl. `templates/<name>/template.yml`) feed the live CI component catalog — name, `spec.inputs` names and the leading comment as description, re-read every sync |
-| `backups` | backup posture drawn as its own map layer: `{repo, stage, regions:[codes], vaults, enrolment, info, geo:[{from,lat,lng,label}]}` — a vault marker per covered region plus a dashed geo-replica arc per `geo` entry (critical-tier copy in the region's cloud pair) |
+| `backups` | backup posture drawn as its own map layer: `{repo, stage, regions:[codes], vaults, enrolment, info, geo:[…]}`. Each `geo` entry is a **cross-region story** — `{from, lat, lng, label}` (geo-replica to a point, e.g. the cloud's paired region) or `{from, toRegion, label}` (a DR pairing between two platform regions). The **globe draws only these** (vault markers appear only on regions an arc touches); every covered region still gets its vault chip in the region view |
 
 ## Flags & environment
 
