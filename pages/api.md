@@ -26,6 +26,7 @@ The whole state, rebuilt every sync:
 | `services` | config-declared platform services (incl. gateway flows: `from`/`to`, per-service `geo`) drawn on the map's layers |
 | `helmCharts` | `{repo, charts:[{name,version,description,path}]}` — every Chart.yaml in `helmChartsRepo`, refreshed each sync |
 | `tfModules` | `{source, modules:[{name,version,released}]}` — the group wiki's module release table, refreshed each sync |
+| `ciComponents` | `{repo, components:[{name,path,inputs,description}]}` — every `templates/*.yml` CI component in `ciComponentsRepo`, refreshed each sync |
 | `signals` | deploy mechanism detection (Argo CD / Flux / pipelines) |
 | `sourceLabel` / `sourceNote` / `drift` | presentation + optional external drift feed |
 

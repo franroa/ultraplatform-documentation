@@ -39,6 +39,8 @@ Top to bottom, all live from `GET /live`:
   (`helmChartsRepo`), re-read on each sync.
 - **Terraform module releases** — the released module versions parsed from the group wiki's
   release table (`moduleReleasesWiki`), re-read on each sync.
+- **CI components** — every CI/CD component template in the configured components repo
+  (`ciComponentsRepo`), with its input names and description, re-read on each sync.
 - **Terraform security inventory** — every `azurerm_*` resource that grants permissions or
   shapes the network (role assignments, custom roles, subnets, firewall rules, NSG rules,
   peerings, private endpoints), each as `{repo, file, names[]}`. Rescanned every
